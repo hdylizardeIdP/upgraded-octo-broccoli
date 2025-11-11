@@ -3,11 +3,12 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
+ARG PNPM_VERSION=8.15.5
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@8.15.5
+RUN npm install -g pnpm@${PNPM_VERSION}
 
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
@@ -19,10 +20,11 @@ RUN pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed
 FROM base AS builder
+ARG PNPM_VERSION=8.15.5
 WORKDIR /app
 
 # Install pnpm
-RUN npm install -g pnpm@8.15.5
+RUN npm install -g pnpm@${PNPM_VERSION}
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
