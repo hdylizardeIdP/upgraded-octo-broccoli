@@ -46,6 +46,9 @@ Rails.application.configure do
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
 
   # Use a different cache store in production.
+  unless ENV["REDIS_URL"].present?
+    raise "Missing required environment variable REDIS_URL for Redis cache store configuration in production."
+  end
   config.cache_store = :redis_cache_store, { url: ENV["REDIS_URL"] }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
