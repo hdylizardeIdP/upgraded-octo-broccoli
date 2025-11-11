@@ -53,9 +53,12 @@ The easiest way to get started is with Docker:
 git clone https://github.com/yourusername/nutrition-tracker.git
 cd nutrition-tracker
 
-# Set up environment variables
+# Set up environment variables for Docker Compose
+cp .env.example .env
+# Edit .env with your secret keys (required for security)
+
+# Optionally, set up Rails environment variables
 cp server/.env.example server/.env
-# Edit server/.env with your secret keys
 
 # Start all services
 docker-compose up --build
@@ -66,6 +69,8 @@ docker-compose up --build
 # - PostgreSQL: localhost:5432
 # - Redis: localhost:6379
 ```
+
+**Important Security Note:** The `.env` file contains sensitive secrets (SECRET_KEY_BASE and JWT_SECRET) that are required for the application to run. For production deployments, always generate new secure values using `openssl rand -hex 64`.
 
 See [DOCKER.md](./DOCKER.md) for detailed Docker setup and troubleshooting.
 
