@@ -1,0 +1,26 @@
+{
+  "name": "nutrition-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack nutrition tracking application with web and mobile support",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "typecheck": "turbo run typecheck"
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.13.0",
+    "turbo": "^1.13.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.5"
+}
