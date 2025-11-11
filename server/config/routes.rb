@@ -13,9 +13,7 @@ Rails.application.routes.draw do
       resources :foods do
         collection do
           get 'search'
-        end
-        member do
-          get 'barcode/:barcode', to: 'foods#barcode', on: :collection
+          get 'barcode/:barcode', to: 'foods#barcode'
         end
       end
 
