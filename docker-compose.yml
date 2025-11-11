@@ -44,14 +44,17 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: nutrition-api
+    entrypoint: ["/app/validate-secrets.sh"]
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nutrition_tracker_development
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?SECRET_KEY_BASE is required - copy .env.example to .env and set this value}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - copy .env.example to .env and set this value}
     depends_on:
       postgres:
         condition: service_healthy
@@ -72,12 +75,15 @@ services:
       context: ./server
       dockerfile: Dockerfile
     container_name: nutrition-sidekiq
+    entrypoint: ["/app/validate-secrets.sh"]
+    env_file:
+      - .env
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nutrition_tracker_development
       REDIS_URL: redis://redis:6379/0
       RAILS_ENV: development
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:?SECRET_KEY_BASE is required - copy .env.example to .env and set this value}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - copy .env.example to .env and set this value}
     depends_on:
       postgres:
         condition: service_healthy
