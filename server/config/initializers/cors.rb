@@ -9,7 +9,11 @@ Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
     if Rails.env.production?
       # In production, use specific allowed origins from environment variable
-      origins ENV['ALLOWED_ORIGINS']&.split(',') || []
+      allowed_origins = ENV['ALLOWED_ORIGINS']&.split(',')&.map(&:strip)
+      if allowed_origins.nil? || allowed_origins.empty?
+        raise "ALLOWED_ORIGINS environment variable must be set and non-empty in production"
+      end
+      origins allowed_origins
 
       resource '*',
         headers: :any,
