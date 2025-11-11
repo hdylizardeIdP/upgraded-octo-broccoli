@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+vendor/
+.bundle/
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log
+log/
+tmp/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Test files
+spec/
+test/
+
+# Documentation
+README.md
+*.md
+
+# OS files
+.DS_Store
+Thumbs.db
