@@ -1,0 +1,31 @@
+# Development Dockerfile for Rails API
+FROM ruby:3.3.6-alpine
+
+# Install dependencies
+RUN apk add --no-cache \
+    build-base \
+    postgresql-dev \
+    tzdata \
+    git \
+    nodejs \
+    npm
+
+WORKDIR /app
+
+# Copy Gemfile for dependency installation
+COPY Gemfile Gemfile.lock ./
+
+# Install gems (will be cached unless Gemfile changes)
+RUN bundle install
+
+# Copy application code
+COPY . .
+
+# Create directories
+RUN mkdir -p tmp/pids log
+
+# Expose port
+EXPOSE 3000
+
+# Start server
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]

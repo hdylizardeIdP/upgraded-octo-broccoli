@@ -44,11 +44,39 @@ nutrition-tracker/
 
 ## Getting Started
 
+### Option 1: Docker (Recommended)
+
+The easiest way to get started is with Docker:
+
+```bash
+# Clone and navigate
+git clone https://github.com/yourusername/nutrition-tracker.git
+cd nutrition-tracker
+
+# Set up environment variables
+cp server/.env.example server/.env
+# Edit server/.env with your secret keys
+
+# Start all services
+docker-compose up --build
+
+# Services will be available at:
+# - API: http://localhost:3000
+# - Web: http://localhost:3001
+# - PostgreSQL: localhost:5432
+# - Redis: localhost:6379
+```
+
+See [DOCKER.md](./DOCKER.md) for detailed Docker setup and troubleshooting.
+
+### Option 2: Manual Installation
+
 ### Prerequisites
 
 - Node.js 20+ and pnpm 8+
 - Ruby 3.2+ and Rails 7.1+
 - PostgreSQL 14+
+- Redis 4.0+
 - (Mobile only) Xcode 15+ (iOS) or Android Studio (Android)
 
 ### Installation

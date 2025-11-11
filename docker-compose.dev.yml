@@ -1,0 +1,86 @@
+# Development Docker Compose
+# Use this for local development with hot reloading
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: nutrition-postgres-dev
+    environment:
+      POSTGRES_DB: nutrition_tracker_development
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nutrition-dev-network
+
+  # Redis for Sidekiq
+  redis:
+    image: redis:7-alpine
+    container_name: nutrition-redis-dev
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - nutrition-dev-network
+
+  # Rails API Server (Development Mode)
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: nutrition-api-dev
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/nutrition_tracker_development
+      REDIS_URL: redis://redis:6379/0
+      RAILS_ENV: development
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-development_secret_key_base}
+      JWT_SECRET: ${JWT_SECRET:-development_jwt_secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./server:/app
+      - api_dev_bundle:/usr/local/bundle
+      - /app/tmp
+      - /app/log
+    command: >
+      sh -c "bundle install &&
+             bundle exec rails db:create db:migrate &&
+             bundle exec rails server -b 0.0.0.0"
+    stdin_open: true
+    tty: true
+    networks:
+      - nutrition-dev-network
+
+volumes:
+  postgres_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+  api_dev_bundle:
+    driver: local
+
+networks:
+  nutrition-dev-network:
+    driver: bridge
