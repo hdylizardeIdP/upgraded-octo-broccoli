@@ -11,7 +11,7 @@ module Api
         if user.save
           token = JsonWebToken.encode(user_id: user.id)
           render json: {
-            user: user_response(user),
+            user: UserSerializer.new(user).attributes,
             tokens: {
               accessToken: token,
               refreshToken: token, # TODO: Implement separate refresh token
@@ -34,7 +34,7 @@ module Api
         if user&.authenticate(login_params[:password])
           token = JsonWebToken.encode(user_id: user.id)
           render json: {
-            user: user_response(user),
+            user: UserSerializer.new(user).attributes,
             tokens: {
               accessToken: token,
               refreshToken: token, # TODO: Implement separate refresh token
@@ -76,7 +76,7 @@ module Api
       # Get current user profile
       def me
         render json: {
-          user: user_response(current_user)
+          user: UserSerializer.new(current_user).attributes
         }, status: :ok
       end
 
@@ -88,21 +88,6 @@ module Api
 
       def login_params
         params.require(:user).permit(:email, :password)
-      end
-
-      def user_response(user)
-        {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          dateOfBirth: user.date_of_birth,
-          gender: user.gender,
-          heightCm: user.height_cm,
-          weightKg: user.weight_kg,
-          activityLevel: user.activity_level,
-          goals: user.goals,
-          createdAt: user.created_at
-        }
       end
     end
   end
