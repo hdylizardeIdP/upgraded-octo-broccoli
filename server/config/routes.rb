@@ -18,22 +18,30 @@ Rails.application.routes.draw do
       end
 
       # Meals
-      resources :meals
+      resources :meals do
+        collection do
+          get 'today'
+          get 'stats'
+        end
+      end
 
-      # Nutrition summaries
-      get 'nutrition/daily', to: 'nutrition#daily'
-      get 'nutrition/weekly', to: 'nutrition#weekly'
-
-      # User profile and goals
-      get 'users/profile', to: 'users#profile'
-      put 'users/profile', to: 'users#update_profile'
-      put 'users/goals', to: 'users#update_goals'
+      # Users (profile management)
+      resources :users, only: [:show, :update, :destroy]
 
       # Water intake
-      resources :water_intakes, only: [:index, :create, :destroy]
+      resources :water_intakes do
+        collection do
+          get 'today'
+        end
+      end
 
       # Weight tracking
-      resources :weights, only: [:index, :create, :update, :destroy]
+      resources :weights do
+        collection do
+          get 'latest'
+          get 'stats'
+        end
+      end
     end
   end
 
