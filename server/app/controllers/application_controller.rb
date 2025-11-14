@@ -1,4 +1,7 @@
 class ApplicationController < ActionController::API
+  # Include validation concern for input sanitization and validation
+  include InputValidation
+
   # Rescue from JWT errors and return appropriate responses
   rescue_from JWT::ExpiredSignature, with: :token_expired
   rescue_from JWT::DecodeError, with: :invalid_token
@@ -20,9 +23,23 @@ class ApplicationController < ActionController::API
 
     token = header.split(' ').last
 
+    # Check if token is blacklisted
+    if TokenBlacklist.blacklisted?(token)
+      render json: { error: 'Token has been revoked' }, status: :unauthorized
+      return
+    end
+
     begin
       decoded = JsonWebToken.decode(token)
-      @current_user = User.find(decoded[:user_id])
+      user_id = decoded[:user_id]
+
+      # Check if user is blacklisted (e.g., after password change or ban)
+      if TokenBlacklist.user_blacklisted?(user_id)
+        render json: { error: 'User access has been revoked' }, status: :unauthorized
+        return
+      end
+
+      @current_user = User.find(user_id)
     rescue ActiveRecord::RecordNotFound
       render json: { error: 'User not found' }, status: :unauthorized
     rescue JWT::ExpiredSignature
@@ -30,6 +47,11 @@ class ApplicationController < ActionController::API
     rescue JWT::DecodeError => e
       render json: { error: "Invalid token: #{e.message}" }, status: :unauthorized
     end
+  end
+
+  # Get the current token from request headers
+  def current_token
+    request.headers['Authorization']&.split(' ')&.last
   end
 
   # Get the current authenticated user

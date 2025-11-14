@@ -51,22 +51,35 @@ module Api
       # POST /api/v1/auth/logout
       # Logout user (invalidate token)
       def logout
-        # TODO: Implement token blacklist with Redis
-        # For now, just return success - client will discard token
-        render json: {
-          message: 'Logged out successfully'
-        }, status: :ok
+        # Add current token to blacklist
+        token = current_token
+
+        if token && TokenBlacklist.add(token)
+          render json: {
+            message: 'Logged out successfully'
+          }, status: :ok
+        else
+          render json: {
+            message: 'Logout failed',
+            error: 'Unable to invalidate token'
+          }, status: :internal_server_error
+        end
       end
 
       # POST /api/v1/auth/refresh
       # Refresh JWT token
       def refresh
-        # Current user is already authenticated via before_action
-        token = JsonWebToken.encode(user_id: current_user.id)
+        # Blacklist the old token
+        old_token = current_token
+        TokenBlacklist.add(old_token) if old_token
+
+        # Generate new token
+        new_token = JsonWebToken.encode(user_id: current_user.id)
+
         render json: {
           tokens: {
-            accessToken: token,
-            refreshToken: token, # TODO: Implement separate refresh token
+            accessToken: new_token,
+            refreshToken: new_token, # TODO: Implement separate refresh token
             expiresIn: 86400 # 24 hours in seconds
           }
         }, status: :ok
